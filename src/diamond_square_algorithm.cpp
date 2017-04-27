@@ -48,7 +48,7 @@ void diamond(int _square, int & N, vector< vector< int > > & terrain, int d){
 		diamond(square, N, terrain, d*.5);
 }
 
-void printColor(int height, int maxHeight){
+void printColorEarth(int height, int maxHeight){
 	unsigned char r, g, b;
 	int pieceSz = (maxHeight*2) / 9;
 	if(height < pieceSz-maxHeight) {
@@ -77,6 +77,37 @@ void printColor(int height, int maxHeight){
 	}
 	else {
 		r = 248; g = 248; b = 248; // mountain top
+	}
+
+	std::cout << (int)r << " " << (int)g << " " << (int)b << std::endl;
+}
+
+void printColorSky(int height, int maxHeight){
+	unsigned char r, g, b;
+	int pieceSz = (maxHeight*2) / 8;
+	if(height < pieceSz-maxHeight) {
+		r = 255; g = 255; b = 255; // deep ocean
+	}
+	else if (height < (2*pieceSz)-maxHeight) {
+		r = 234; g = 234; b = 255; // mid ocean
+	}
+	else if (height < (3*pieceSz)-maxHeight) {
+		r = 212; g = 212; b = 255; // shallow ocean
+	}
+	else if (height < (4*pieceSz)-maxHeight) {
+		r = 191; g = 191; b = 255; // sand
+	}
+	else if (height < (5*pieceSz)-maxHeight) {
+		r = 64; g = 64; b = 255;; // mountain
+	}
+	else if (height < (6*pieceSz)-maxHeight) {
+		r = 43; g = 43; b = 255; // mountain
+	}
+	else if (height < (7*pieceSz)-maxHeight) {
+		r = 21; g = 21; b = 255; // mountain
+	}
+	else {
+		r = 255; g = 255; b = 255; // mountain top
 	}
 
 	std::cout << (int)r << " " << (int)g << " " << (int)b << std::endl;
@@ -116,7 +147,7 @@ int main(int argn, char ** argv){
 	cout << "P3\n" << N << " " << N << "\n" << 255 << endl;
 
 	for(int i = 0; i < N; ++i)
-	for(int j = 0; j < N; ++j)	printColor(terrain[i][j], MAX_HEIGHT);		
+	for(int j = 0; j < N; ++j)	printColorSky(terrain[i][j], MAX_HEIGHT);		
 
 	return 0;
 }
