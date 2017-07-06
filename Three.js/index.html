@@ -210,6 +210,12 @@
                 //stats.update();
             }
 
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
             function init(type){                
                 //criando a cena
                 scene = new THREE.Scene();
@@ -243,6 +249,7 @@
 
                 raycaster = new THREE.Raycaster();
                 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                window.addEventListener('resize', onWindowResize, false);
             }
         </script>
 
