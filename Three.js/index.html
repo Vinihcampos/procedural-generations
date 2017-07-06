@@ -30,8 +30,8 @@
                     bevelEnabled: false
                 });
 
-                var offset = 0;
-                offset = Math.random() * .5;
+                var offset = 1;
+                //offset = Math.random() * .5;
 
                 shape_geom.vertices.forEach(function (vert, index) {
                     var radius = 0.0;
@@ -58,7 +58,7 @@
                 root_object.add(shape_mesh);
             }
 
-            function add_all_countries() {
+            function create_countries() {
 
                 root_object = 0;
 
@@ -96,7 +96,7 @@
                 });
             }
 
-            function add_all_lands(){
+            function create_continents(){
                 root_object = 0;
 
                 if ( root_object ) {
@@ -151,66 +151,110 @@
                     vertexColors: THREE.FaceColors
                 });
 
-                var moonGeometry = new THREE.SphereGeometry(30, 8, 8 );
+                var moonGeometry = new THREE.SphereGeometry(30, 9, 9 );
                 moon = new THREE.Mesh(moonGeometry, moonMat);
 
                 scene.add( moon );
             }
-        </script>
 
-    </head>
-    <body>
-
-        <script type="text/javascript">
-            //criando a cena
-            var scene = new THREE.Scene(), WIDTH = window.innerWidth, HEIGHT = window.innerHeight;
-            
-            //criando câmera em perspectiva
-            // - Campo de visão (FOV)
-            // - Relação do aspecto (aspect ratio com o tamanho da janela)
-            // - Plano de recorte próximo (limite de renderização próximo)
-            // - Plano de recorte afastado (limite de renderização distante)
-            var camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 1000);
-            
-            //criando objeto de renderização WebGL
-            var renderer = new THREE.WebGLRenderer();
-            renderer.setSize( WIDTH, HEIGHT ); //configurando dimensões do renderizador
-            
-            //atribuindo ao DOM e ao body do html
-            document.getElementsByTagName('body')[0].appendChild( renderer.domElement  );
-
-            createLights();
-
-            //Habilitando movimento de orbita
-            var orbit = new THREE.OrbitControls( camera, renderer.domElement );
-            orbit.enableZoom = true;
-
-            createPlanet();
-            
-            add_all_countries();
-
-            //definindo a posição da câmera
-            camera.position.z = 100;
-
-            //definindo a cena e a câmera utilizada
-            renderer.render(scene, camera);
-
-            //função para controlar a renderização da cena
             function render(){
                 //definindo a cena e a câmera utilizada
-                renderer.render(scene, camera);
                  
                 //alterando valores dos eixos para executar algum movimento
                 //sphere.rotation.z += 0.001;
                 //sphere.rotation.y += 0.001;
                 //sphere.rotation.x += 0.001;
-                 
-                //executando recursivamente
-                requestAnimationFrame(render);
+                
+                raycaster.setFromCamera( mouse, camera );
+                var intersects = raycaster.intersectObjects( root_object.children );
+
+                if ( intersects.length > 0 ) {
+
+                    if ( INTERSECTED != intersects[ 0 ].object ) {
+
+                        if ( INTERSECTED ) {
+                            //INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                            INTERSECTED.scale.set(normal_scale, normal_scale, normal_scale);
+                        }
+
+                        INTERSECTED = intersects[ 0 ].object;
+                        //INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+                        //INTERSECTED.material.emissive.setHex( 0xffffff );
+                        INTERSECTED.scale.set(hover_scale, hover_scale, hover_scale);
+
+                    }
+
+                } else {
+
+                    if ( INTERSECTED ) {
+                        //INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                        INTERSECTED.scale.set(normal_scale, normal_scale, normal_scale);
+                    }
+                    INTERSECTED = null;
+
+                }
+
+                renderer.render(scene, camera);
             }
-             
-            //executando a função de renderização
-            render();
+
+            function onDocumentMouseMove( event ) {
+                event.preventDefault();
+
+                mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+                mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            }
+
+            function animate() {
+                requestAnimationFrame( animate );
+                render();
+                //stats.update();
+            }
+
+            function init(type){                
+                //criando a cena
+                scene = new THREE.Scene();
+                WIDTH = window.innerWidth;
+                HEIGHT = window.innerHeight;
+                
+                camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 1000);
+                camera.position.z = 100;
+
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize( WIDTH, HEIGHT );
+                
+                document.getElementsByTagName('body')[0].appendChild( renderer.domElement  );
+
+                createLights();
+                orbit = new THREE.OrbitControls( camera, renderer.domElement );
+                orbit.enableZoom = true;
+
+                createPlanet();
+                switch(type){
+                    case "country":
+                        create_countries();
+                    break;
+                    case "continent":
+                        create_continents();
+                    break;
+                    default:
+                    break;                    
+                }
+                renderer.render(scene, camera);
+
+                raycaster = new THREE.Raycaster();
+                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+            }
+        </script>
+
+    </head>
+    <body>
+        <script type="text/javascript">
+            var scene, camera, renderer, orbit, WIDTH, HEIGHT;
+            var mouse = new THREE.Vector2(), INTERSECTED, raycaster;
+            var hover_scale = 1.05;
+            var normal_scale = 1.0;
+            init("country");
+            animate();
         </script>
     </body>
 </html>
