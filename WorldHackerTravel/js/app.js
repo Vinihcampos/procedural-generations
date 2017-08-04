@@ -142,6 +142,28 @@ function createLights() {
     scene.add(shadowLight);
 }
 
+function createMapPointer(x, y){
+
+    var geometry = new THREE.CircleGeometry( 1.3, 32 );
+    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    var circle = new THREE.Mesh( geometry, material );
+    circle.position.x = x;
+    circle.position.y = y;
+    circle.position.z = 0.1;
+    scene.add( circle );
+
+    geometry = new THREE.CircleGeometry( 1, 32 );
+
+    var loader = new THREE.TextureLoader();
+    var texture = THREE.ImageUtils.loadTexture('img/avatar.png');
+    material = new THREE.MeshBasicMaterial( { map: texture } );
+    var circleAvatar = new THREE.Mesh( geometry, material );
+    circleAvatar.position.x = x;
+    circleAvatar.position.y = y;
+    circleAvatar.position.z = 0.1;
+    scene.add( circleAvatar );
+}
+
 function render(){
     raycaster.setFromCamera( mouse, camera );
     renderer.render(scene, camera);
@@ -156,25 +178,34 @@ function onDocumentMouseMove( event ) {
 
 function onDocumentMouseUp(event) {
     event.preventDefault();
-    
-    var intersects = raycaster.intersectObjects( root_solid.children, true );
+    var intersects = raycaster.intersectObjects( root_solid.children );
 
+    var rightclick;
+    if (event.which) 
+        rightclick = (event.which == 3);
+    else if (event.button) 
+        rightclick = (event.button == 2);
+    
     if ( intersects.length > 0 ) {
         var intersected = intersects[0].object;
         intersected.geometry.computeBoundingBox();
         var values = intersected.geometry.boundingBox.clone();
         
-        if(camera.position.x == intersected.position.x &&
-        camera.position.y == intersected.position.y &&
-        camera.position.z == Math.max( Math.abs(values.min.x - values.max.x), Math.abs(values.min.y - values.max.y) ) * 1.5){
-            controls.reset();
-        }else if(intersected.position.x != 0 || intersected.position.y != 0){
-            camera.position.x = intersected.position.x;
-            camera.position.y = intersected.position.y;
-            camera.position.z = Math.max( Math.abs(values.min.x - values.max.x), Math.abs(values.min.y - values.max.y) ) * 1.5;            
-        } 
+        if(rightclick){
+            createMapPointer(intersects[0].point.x, intersects[0].point.y);
+        }else{
+            if(camera.position.x == intersected.position.x &&
+            camera.position.y == intersected.position.y &&
+            camera.position.z == Math.max( Math.abs(values.min.x - values.max.x), Math.abs(values.min.y - values.max.y) ) * 1.5){
+                controls.reset();
+            }else if(intersected.position.x != 0 || intersected.position.y != 0){
+                camera.position.x = intersected.position.x;
+                camera.position.y = intersected.position.y;
+                camera.position.z = Math.max( Math.abs(values.min.x - values.max.x), Math.abs(values.min.y - values.max.y) ) * 1.5;            
+            } 
+        }
     }else{
-        controls.reset();
+        if(!rightclick) controls.reset();
     }
 }
 
